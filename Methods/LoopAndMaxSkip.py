@@ -4,17 +4,16 @@ from collections import deque
 from itertools import islice
 
 
-class GridSolver_LoopAndSkip():
+class GridSolver_LoopAndMaxSkip():
     def __init__(self, m, n, find_HC=find_HC_haircomb, find_theta=find_theta_haircomb, cutoff_length=None):
         if m%2==0 or n%2==0:
-            self.name = 'Loop&Skip Even'
+            self.name = 'Loop&MaxSkip'
             self.start_new_game = self.start_new_game_even
             self.find_path = self.find_path_even
             loop = find_HC(m, n)
         else:
             print('Loop&Skip not yet implemented for odd grids!')
 
-            
         self.area = m * n
         self.adjacency = find_grid_adjacency(m, n)
         self.loop = deque(loop)
