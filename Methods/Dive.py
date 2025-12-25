@@ -17,6 +17,7 @@ class GridSolver_Dive():
     def start_new_game_even(self, start):
         self.snake_length = 1
         self.snake = [start]
+        self.head = divmod(start, self.n)
         self.dive_lengths = [None]*(self.m//2-1)
         self.is_left = None
 
@@ -30,6 +31,7 @@ class GridSolver_Dive():
             dive_lengths = self.decide_dive_lengths(apple)
             self.loop = dive_cycle_even(self.n, dive_lengths)
             self.idx_head = self.loop.index(self.snake[-1])
+            self.idx_bottom_right = 2*sum(dive_lengths) + self.m + self.n -3
         else:
             # No degree of freedom, use the same loop as before
             dive_lengths = self.dive_lengths
@@ -50,8 +52,9 @@ class GridSolver_Dive():
 
     def update_snake(self, path):
         self.snake_length += 1
-        p = len(path)
+        self.head = divmod(path[-1], self.n)
 
+        p = len(path)
         if self.snake_length <= p:
             # Tail is entirely in path
             self.snake = path[-self.snake_length:]
@@ -61,19 +64,17 @@ class GridSolver_Dive():
             self.snake = self.snake[-need_from_snake:] + path
 
     def update_side(self, dive_lengths):
-        head = self.snake[-1]
-
+        head_x, head_y = self.head
+        if head_x == 0:
+            self.is_left = False
+            return
+        elif head_x == self.m -1:
+            self.is_left = True
+            return
         # if the snake lies on a single line, the side does not matter
         # except when it touches one edge
-        if self.snake_length<self.n:
+        elif self.snake_length<self.n:
             # particular cases
-            if head == 0:
-                self.is_left = False
-                return
-            elif head == self.area -1:
-                self.is_left = True
-                return
-            head_x, head_y = divmod(head, self.n) 
             if head_y == 0:
                 self.is_left = True
                 return
@@ -86,15 +87,13 @@ class GridSolver_Dive():
         
         # otherwise, we just have to compare the index of the head 
         # to the index of the bottom right corner in the loop
-        idx_bottom_right = 2*sum(dive_lengths) + self.m + self.n -3
-        self.is_left = self.idx_head<=idx_bottom_right
+        self.is_left = self.idx_head<=self.idx_bottom_right
     
     def decide_dive_lengths(self, apple):
         """ Based on the position of the snake and the apple, find a good dive cycle to get to the apple quickly """
-        head_x, head_y = divmod(self.snake[-1], self.n)
-        dives = self.dive_lengths[:]
-
+        head_x, head_y = self.head
         apple_x, apple_y = divmod(apple, self.n)
+        dives = self.dive_lengths.copy()
         if apple_x in (0,self.m-1) or apple_y in (0, self.n-1):
             # Apple is on an edge
             if head_x > apple_x:
@@ -125,17 +124,17 @@ class GridSolver_Dive():
                         dives[i] = 0
 
         # Safeguard: Make sure the snake does not jump from left side to right sides
-        if head_x in (0, self.m-1) or head_y in (0, self.n-1):
-            pass
-        elif self.is_left:
-            if dives[(head_x-1)//2]< head_y:
-                dives[(head_x-1)//2] = head_y
-        else:
-            if dives[(head_x-1)//2]>= head_y:
-                dives[(head_x-1)//2] = head_y-1
+        if head_x not in (0, self.m-1) and head_y not in (0, self.n-1):
+            dive_head = (head_x-1)//2
+            if self.is_left:
+                if dives[dive_head]< head_y:
+                    dives[dive_head] = head_y
+            else:
+                if dives[dive_head]>= head_y:
+                    dives[dive_head] = head_y-1
             
         return dives
-    
+ 
     def update_dive_lengths(self, dive_lengths):
         """
         Based on the loop given by ``dive_lengths``, update ``self.dive_lengths`` such that 
@@ -149,8 +148,7 @@ class GridSolver_Dive():
             return
 
         l = self.snake_length
-        head = self.snake[-1]
-        head_x, head_y = divmod(head, self.n)
+        head_x, head_y = self.head
         idx_x = (head_x-1)//2
 
         if self.is_left:  

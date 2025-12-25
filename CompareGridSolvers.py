@@ -14,16 +14,16 @@ m = 16
 n = 16
 
 # choose number of games to run per method
-N = 2_500
+N = 1_000
 
 # initialise solvers
 solvers = [
-    GridSolver_Loop(m, n),
-    Optimizer_FastForward(GridSolver_Loop, m, n),
+    #GridSolver_Loop(m, n),
+    #Optimizer_FastForward(GridSolver_Loop, m, n),
     #GridSolver_LoopAndMaxSkip(m, n, find_HC=double_comb_cycle),
-    GridSolver_LoopAndGreedySkip(m, n, find_HC=double_comb_cycle),
+    #GridSolver_LoopAndGreedySkip(m, n, find_HC=double_comb_cycle),
     GridSolver_Dive(m, n),
-    Optimizer_FastForward(GridSolver_Dive, m, n),
+    #Optimizer_FastForward(GridSolver_Dive, m, n),
 ]
 
 against_exact_Loop_PDF = False      # set to True to compare against exact Loop PDF, on small grids only!
