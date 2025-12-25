@@ -7,13 +7,14 @@ from Methods.Loop import GridSolver_Loop
 from Methods.LoopAndMaxSkip import GridSolver_LoopAndMaxSkip
 from Methods.LoopAndGreedySkip import GridSolver_LoopAndGreedySkip
 from Methods.Dive import GridSolver_Dive
+from Methods.AsymDive import GridSolver_AsymDive
 
 # choose grid size, m <= n
 m = 8
 n = 8
 
 # initialise solvers
-solver = Optimizer_FastForward(GridSolver_Dive, m, n)
+solver = GridSolver_AsymDive(m, n)
 
 # run comparison
 animator = GridAnimator(m, n, solver)

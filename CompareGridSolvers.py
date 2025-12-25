@@ -8,6 +8,7 @@ from Methods.LoopAndMaxSkip import GridSolver_LoopAndMaxSkip
 from Methods.LoopAndGreedySkip import GridSolver_LoopAndGreedySkip
 from Methods.Dive import GridSolver_Dive
 from Methods.FastForward import Optimizer_FastForward
+from Methods.AsymDive import GridSolver_AsymDive
 
 # choose grid size, m <= n
 m = 16
@@ -24,6 +25,7 @@ solvers = [
     #GridSolver_LoopAndGreedySkip(m, n, find_HC=double_comb_cycle),
     GridSolver_Dive(m, n),
     #Optimizer_FastForward(GridSolver_Dive, m, n),
+    GridSolver_AsymDive(m, n),
 ]
 
 against_exact_Loop_PDF = False      # set to True to compare against exact Loop PDF, on small grids only!
