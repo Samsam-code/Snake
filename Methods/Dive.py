@@ -46,7 +46,7 @@ class GridSolver_Dive():
 
         self.update_snake(path)
         self.idx_head = idx_apple
-        self.update_side(dive_lengths)
+        self.update_side()
         self.update_dive_lengths(dive_lengths)
         return path
 
@@ -63,7 +63,7 @@ class GridSolver_Dive():
             need_from_snake = self.snake_length - p
             self.snake = self.snake[-need_from_snake:] + path
 
-    def update_side(self, dive_lengths):
+    def update_side(self):
         head_x, head_y = self.head
         if head_x == 0:
             self.is_left = False
