@@ -100,6 +100,8 @@ class GridSolver_AsymDive():
         apple_x, apple_y = divmod(apple, self.n)
         left_dives = self.left_dives.copy()
         right_dives = self.right_dives.copy()
+        
+        loop_length = 2*(self.m + self.n -2) + sum(left_dives) + sum(right_dives)
         if apple_x in (0,self.m-1) or apple_y in (0, self.n-1):
             # Apple is on an edge => stick to the edges
             pass
@@ -116,7 +118,7 @@ class GridSolver_AsymDive():
                 if right_dives[idx_dive_apple]<dive and left_dives[idx_dive_apple]< apple_y:
                     left_dives[idx_dive_apple] = apple_y
 
-        # Safeguard: Make sure the snake does not jump from left side to right sides
+        # Safeguard 1: Make sure the snake does not jump from left side to right sides
         if head_x not in (0, self.m-1) and head_y not in (0, self.n-1):
             idx_dive_head = (head_x-1)//2
             if self.is_left:
@@ -125,11 +127,18 @@ class GridSolver_AsymDive():
             else:
                 left_dives[idx_dive_head] = min(left_dives[idx_dive_head], head_y-1)
                 right_dives[idx_dive_head] = max(right_dives[idx_dive_head], self.n - head_y - 1)
-            
-        # Widen dives if necessary
-        loop_length = 2*(self.m + self.n -2) + sum(left_dives) + sum(right_dives)
-        #if self.snake_length > loop_length:
-        #input(self.snake_length - loop_length)
+
+        # Safeguard 2: Make sure the snake does not collide with its tail
+        tail_x, tail_y = divmod(self.snake[0], self.n)
+        if self.snake_length > loop_length and tail_x not in (0, self.m-1):
+            idx_dive_tail = (tail_x-1)//2
+            if left_dives[idx_dive_tail] < tail_y and right_dives[idx_dive_tail] < (self.n - 1 - tail_y):
+                if self.snake[1]== self.snake[0]+1:
+                    # Tail is on the right side
+                    right_dives[idx_dive_tail] = max(right_dives[idx_dive_tail], (self.n - tail_y)//2)
+                elif self.snake[1] == self.snake[0]-1:
+                    # Tail is on the left side
+                    left_dives[idx_dive_tail] =  max(left_dives[idx_dive_tail], (tail_y+1)//2)
         
         return left_dives, right_dives
  
@@ -201,7 +210,7 @@ class GridSolver_AsymDive():
                     head_y_gap = head_y 
                 else:
                     head_y_gap = head_y - self.n + right_dives[idx_x]
-                    
+
             idx_x +=1
             while idx_x<len_dives:
                 l = consume_dive(right_dives, self.right_dives, idx_x, l)
@@ -219,7 +228,7 @@ class GridSolver_AsymDive():
 
             l -= self.n
             idx_x = 0
-            while idx_x>=0 and l>0:
+            while idx_x<len_dives and l>0:
                 l = consume_dive(right_dives, self.right_dives, idx_x, l)
                 idx_x += 1
             

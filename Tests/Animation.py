@@ -6,7 +6,7 @@ Use Y / N to play again or quit.
 Built using pygame and run_single_test
 """
 import pygame
-from random import choice
+import random
 from collections import deque
 from GridSpecificTools.GridGraphAndSymmetries import find_grid_adjacency
 
@@ -24,11 +24,14 @@ RECT_EXPAND = 1
 
 
 class GridAnimator():
-    def __init__(self, m, n, solver):
+    def __init__(self, m, n, solver, seed=None):
         CELL = BOARD_SIZE // n
         RADIUS = CELL//2 - SEG_MARGIN
         self.CELL = CELL
-        self.RADIUS = RADIUS    
+        self.RADIUS = RADIUS   
+
+        if seed:
+            random.seed(seed) 
 
         self.adjacency = find_grid_adjacency(m, n)
 
@@ -45,14 +48,13 @@ class GridAnimator():
         self.create_board_layers(n*CELL, m*CELL + SCORE_HEIGHT)
 
     def animate_single_game(self):  
-
         # keep track of occupied, empty vertices
         occupied = [False] * self.area
         empty_vertices = list(range(self.area))  # list of empty vertices
         empty_indices = list(range(self.area))   # index of empty vertex within that list
 
         # choose starting location, pass to solver
-        start = choice(empty_vertices)
+        start = random.choice(empty_vertices)
         self.solver.start_new_game(start)
         
         occupied[start] = True
@@ -73,7 +75,7 @@ class GridAnimator():
         score = 0
         for length in range(1, self.area):
             # generate random apple
-            apple = choice(empty_vertices)
+            apple = random.choice(empty_vertices)
             self.draw_apple(apple)
             self.refresh_screen()
 
@@ -319,9 +321,9 @@ class GridAnimator():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return None
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.fps += 1
+                    self.fps += 10
                 elif event.key == pygame.K_DOWN:
-                    self.fps = max(1, self.fps-1)
+                    self.fps = max(1, self.fps-10)

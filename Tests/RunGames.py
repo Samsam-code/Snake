@@ -1,4 +1,4 @@
-from random import choice
+import random
 from collections import deque
 import time
 import statistics
@@ -17,7 +17,7 @@ def run_single_game(adjacency, solver):
     empty_indices = list(range(area))   # index of empty vertex within that list
 
     # choose starting location, pass to solver
-    start = choice(empty_vertices)
+    start = random.choice(empty_vertices)
     solver.start_new_game(start)
     
     occupied[start] = True
@@ -34,7 +34,7 @@ def run_single_game(adjacency, solver):
     score_per_apple = [0] * (area-1)
     for apple_num in range(area-1):
         # generate random apple, ask solver for path to apple
-        apple = choice(empty_vertices)
+        apple = random.choice(empty_vertices)
         path = solver.find_path(apple)
 
         for new_head in path[:-1]:
@@ -94,8 +94,12 @@ def run_multiple_games(adjacency, solver, N):
     scores = [0] * N
     total_score_per_apple = [0] * (len(adjacency)-1)
     for game in range(N):
+        seed = time.time_ns()
+        random.seed(seed)
         score_per_apple = run_single_game(adjacency, solver)
         if score_per_apple is None:
+            print(f"Solver: {solver.name}")
+            print(f"Seed: {seed}")
             return 
         scores[game] = sum(score_per_apple)
         for apple, score in enumerate(score_per_apple):
