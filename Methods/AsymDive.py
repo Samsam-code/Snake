@@ -1,4 +1,5 @@
-from GridSpecificTools.DiveCycle import asym_dive_cycle_even
+from GridSpecificTools.DiveCycle import asym_dive_cycle_even, dive_cycle_even
+from Methods.Dive import GridSolver_Dive
 
 class GridSolver_AsymDive():
     def __init__(self, m, n):
@@ -135,10 +136,10 @@ class GridSolver_AsymDive():
             if left_dives[idx_dive_tail] < tail_y and right_dives[idx_dive_tail] < (self.n - 1 - tail_y):
                 if self.snake[1]== self.snake[0]+1:
                     # Tail is on the right side
-                    right_dives[idx_dive_tail] = max(right_dives[idx_dive_tail], (self.n - tail_y)//2)
+                    right_dives[idx_dive_tail] = max(right_dives[idx_dive_tail], (self.n - tail_y+1)//2)
                 elif self.snake[1] == self.snake[0]-1:
                     # Tail is on the left side
-                    left_dives[idx_dive_tail] =  max(left_dives[idx_dive_tail], (tail_y+1)//2)
+                    left_dives[idx_dive_tail] =  max(left_dives[idx_dive_tail], tail_y//2 +1)
         
         return left_dives, right_dives
  
