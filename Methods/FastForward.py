@@ -38,17 +38,27 @@ def astar(start, goal, blocked, adjacency, heuristic):
     return None  # No path found
 
 class Optimizer_FastForward:
-    def __init__(self, SolverClass, m, n, *args, **kwargs):
+    def __init__(self, SolverClass, m, n, *args, end_FF=None, **kwargs):
         self.solver = SolverClass(m, n, *args, **kwargs)
         self.name = self.solver.name + " + FF"
 
         # Avoid doing adjacency computation twice if possible
         self.adjacency = self.solver.adjacency if hasattr(self.solver, "adjacency") else find_grid_adjacency(m, n)
         self.ManhattanDistance = find_Manhattan_distance_func(n)
+
+        self.end_FF = end_FF or m*n//2
+
+    def start_new_game(self, start):
+        self.solver.start_new_game(start)
+        self.find_path = self.find_path_FF
         
-    def find_path(self, apple):
-        snake = self.solver.snake[:]
+    def find_path_FF(self, apple):
         l = self.solver.snake_length
+        if self.end_FF<= l:
+            self.find_path = self.solver.find_path
+            return self.solver.find_path(apple)
+        
+        snake = self.solver.snake.copy()
         head = snake[-1]
 
         basic_path = self.solver.find_path(apple)

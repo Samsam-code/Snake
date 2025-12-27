@@ -26,7 +26,7 @@ solvers = [
     #GridSolver_Dive(m, n),
     Optimizer_FastForward(GridSolver_Dive, m, n),
     GridSolver_AsymDive(m, n),
-    Optimizer_FastForward(GridSolver_AsymDive, m, n),
+    Optimizer_FastForward(GridSolver_AsymDive, m, n, end_FF=2*(m+n)),
 ]
 
 against_exact_Loop_PDF = False      # set to True to compare against exact Loop PDF, on small grids only!
