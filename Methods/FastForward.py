@@ -1,7 +1,9 @@
 from GridSpecificTools.GridGraphAndSymmetries import find_grid_adjacency, find_Manhattan_distance_func
 import heapq
 
-def astar(start, goal, blocked, adjacency, heuristic):
+INF = float("inf")
+
+def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
     """
     A* pathfinding from ``start`` to ``goal`` on a graph
     defined by ``adjacency`` with obstacles.
@@ -21,21 +23,18 @@ def astar(start, goal, blocked, adjacency, heuristic):
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
-            path.append(start)
             return path[::-1]
         
         for neighbor in adjacency[current]:
             # Check bounds and obstacles
-            if (neighbor not in blocked):
-                tentative_g = current_g + 1
-                
-                if tentative_g < g_score.get(neighbor, float('inf')):
+            tentative_g = current_g + 1
+            if neighbor not in blocked and tentative_g < g_score.get(neighbor, limit+1):
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + heuristic(neighbor, goal)
+                if f_score <= limit:
                     came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g
-                    f_score = tentative_g + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score, tentative_g, neighbor))
-    
-    return None  # No path found
+    return None
 
 class Optimizer_FastForward:
     def __init__(self, SolverClass, m, n, *args, end_FF=None, **kwargs):
@@ -69,12 +68,12 @@ class Optimizer_FastForward:
 
         target = basic_path[-l]
         blocked = set(snake).union(end_path)
-        head_to_target = astar(head, target, blocked, self.adjacency, self.ManhattanDistance)
+        head_to_target = astar(head, target, blocked, self.adjacency, self.ManhattanDistance, len(basic_path)-l)
 
         if head_to_target is None:
             return basic_path
         else:
-            return head_to_target[1:]+end_path
+            return head_to_target+end_path
     
     # If we want to get any other attribute than those we have defined,
     # go search them in the solver
