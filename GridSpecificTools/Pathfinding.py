@@ -8,7 +8,7 @@ def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
     defined by ``adjacency`` with obstacles.
     """
 
-    # Priority queue: (heuristic, score, cell)
+    # Priority queue: (heuristic, -score, cell)
     prio_queue = []
     heapq.heappush(prio_queue, (heuristic(start, goal), 0, start))
     
@@ -16,7 +16,7 @@ def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
     score = {start: 0}
     
     while prio_queue:
-        _, current_score, current = heapq.heappop(prio_queue)
+        _, negative_score, current = heapq.heappop(prio_queue)
         
         if current == goal:
             # Reconstruct path
@@ -26,7 +26,7 @@ def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
                 current = came_from[current]
             return path[::-1]
         
-        new_score = current_score + 1
+        new_score = 1 - negative_score
         for neighbor in adjacency[current]:
             if neighbor in blocked or new_score >= score.get(neighbor, limit+1):
                 continue
@@ -35,27 +35,27 @@ def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
             h_score = new_score + heuristic(neighbor, goal)
             if h_score <= limit:
                 came_from[neighbor] = current
-                heapq.heappush(prio_queue, (h_score, new_score, neighbor))
+                heapq.heappush(prio_queue, (h_score, -new_score, neighbor))
     return None
 
 def astar_with_temporary_obstacles(start, goal, blocked, adjacency, heuristic, limit=INF):
     # blocked is a dict {cell: end_time}
     # cells are blocked from t=0 until their end_time.
     
-    # Priority queue: (heuristic, score, cell, path)
+    # Priority queue: (heuristic, -score, cell, path)
     prio_queue = []
     heapq.heappush(prio_queue, (heuristic(start, goal), 0, start, [start]))
     
-    #visited = set()
-    #visited.add((start[0], start[1], 0))
+    visited = set()
+    visited.add((start, 0))
     
     while prio_queue:
-        _, current_score, current, path = heapq.heappop(prio_queue)
+        _, negative_score, current, path = heapq.heappop(prio_queue)
         
         if current == goal:
             return path[1:]
         
-        new_score = current_score+1
+        new_score = 1 - negative_score
         for neighbor in adjacency[current]:
             
             # Obstacle check
@@ -66,11 +66,11 @@ def astar_with_temporary_obstacles(start, goal, blocked, adjacency, heuristic, l
             if neighbor in path:
                 continue
             
-            #state = (nx, ny, nt)
-            #if state not in visited:
-                #visited.add(state)
+            state = (current, new_score)
+            if state not in visited:
+                visited.add(state)
             h_score = new_score + heuristic(neighbor, goal)
             if h_score<=limit:
-                heapq.heappush(prio_queue, (h_score, new_score, neighbor, path + [neighbor]))
+                heapq.heappush(prio_queue, (h_score, -new_score, neighbor, path + [neighbor]))
 
     return None
