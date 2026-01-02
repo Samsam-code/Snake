@@ -3,7 +3,7 @@ from GridSpecificTools.DiveCycle import asym_dive_cycle_even
 class GridSolver_AsymDive():
     def __init__(self, m, n, cutoff_length=None):
         if m%2 == 0:
-            self.name = 'AsymDive Even'
+            self.name = 'AsymDive'
             self.start_new_game = self.start_new_game_even
             self.find_path = self.find_path_even
         else:
@@ -21,13 +21,10 @@ class GridSolver_AsymDive():
         self.head = divmod(start, self.n)
         self.left_dives = [0]*(self.m//2-1)
         self.right_dives = [0]*(self.m//2-1)
-        self.is_left = None
+        self.update_side()
         self.new_loop = True
 
     def find_path_even(self, apple):
-        if self.is_left is None:
-            # The snake forms a line so we decide to orient the snake in the fastest way to reach the apple
-            self.is_left = apple>self.snake[-1]
         if self.new_loop:
             left_dives, right_dives = self.decide_dive_lengths(apple)
             self.loop = asym_dive_cycle_even(self.n, left_dives, right_dives)
@@ -110,18 +107,33 @@ class GridSolver_AsymDive():
         apple_x, apple_y = divmod(apple, self.n)
         left_dives = self.left_dives.copy()
         right_dives = self.right_dives.copy()
+
+        idx_dive_head = (head_x-1)//2
+        if self.is_left is None:
+            # The snake forms a line so we decide to orient the snake in the fastest way to reach the apple
+            self.is_left = apple>self.snake[-1]
+            if self.is_left:
+                right_dives[idx_dive_head] = 0
+            else:
+                left_dives[idx_dive_head] = 0
         
         # Safeguard 1: Make sure the snake does not jump from left side to right sides
         if head_x not in (0, self.m-1) and head_y not in (0, self.n-1):
-            idx_dive_head = (head_x-1)//2
             if self.is_left:
                 left_dives[idx_dive_head] = max(left_dives[idx_dive_head], head_y)
-                right_dives[idx_dive_head] = min(right_dives[idx_dive_head], self.n - head_y - 2)
             else:
-                left_dives[idx_dive_head] = min(left_dives[idx_dive_head], head_y-1)
                 right_dives[idx_dive_head] = max(right_dives[idx_dive_head], self.n - head_y - 1)
         
+        # Safeguard 2: Make sure the snake does not collide with its tail
         loop_length = 2*(self.m + self.n + sum(left_dives) + sum(right_dives) -2)
+        if self.snake_length > loop_length:
+            idx_dive_tail = (self.snake[0]//self.n -1)//2
+            if self.snake[1]== self.snake[0]+1: # Tail is on the right side
+                right_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
+            elif self.snake[1] == self.snake[0]-1: # Tail is on the left side
+                left_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
+
+
         idx_dive_apple = (apple_x-1)//2
         r_dive_apple = self.n - apple_y - 1
         if apple_x in (0,self.m-1) or apple_y in (0, self.n-1):
@@ -139,21 +151,6 @@ class GridSolver_AsymDive():
                 right_dives[idx_dive_apple] = r_dive_apple
             else: #snake goes right => reach from left side
                 left_dives[idx_dive_apple] = apple_y
-
-        # Safeguard 2: Make sure the snake does not collide with its tail
-        tail_x, tail_y = divmod(self.snake[0], self.n)
-        if self.snake_length > loop_length and tail_x not in (0, self.m-1):
-            idx_dive_tail = (tail_x-1)//2
-            if left_dives[idx_dive_tail] < tail_y and right_dives[idx_dive_tail] < (self.n - 1 - tail_y):
-                if self.snake[1]== self.snake[0]+1:
-                    # Tail is on the right side
-
-                    right_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
-                    right_dives[idx_dive_tail] = min(right_dives[idx_dive_tail], self.n - left_dives[idx_dive_tail] -2)
-                elif self.snake[1] == self.snake[0]-1:
-                    # Tail is on the left side
-                    left_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
-                    left_dives[idx_dive_tail] = min(left_dives[idx_dive_tail], self.n - right_dives[idx_dive_tail] -2)
 
         return left_dives, right_dives
 
