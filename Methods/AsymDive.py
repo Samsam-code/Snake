@@ -108,23 +108,18 @@ class GridSolver_AsymDive():
         left_dives = self.left_dives.copy()
         right_dives = self.right_dives.copy()
 
-        idx_dive_head = (head_x-1)//2
         if self.is_left is None:
             # The snake forms a line so we decide to orient the snake in the fastest way to reach the apple
+            idx_dive_head = (head_x-1)//2
             self.is_left = apple>self.snake[-1]
             if self.is_left:
+                left_dives[idx_dive_head] = head_y
                 right_dives[idx_dive_head] = 0
             else:
                 left_dives[idx_dive_head] = 0
+                right_dives[idx_dive_head] = self.n - head_y - 1
         
-        # Safeguard 1: Make sure the snake does not jump from left side to right sides
-        if head_x not in (0, self.m-1) and head_y not in (0, self.n-1):
-            if self.is_left:
-                left_dives[idx_dive_head] = max(left_dives[idx_dive_head], head_y)
-            else:
-                right_dives[idx_dive_head] = max(right_dives[idx_dive_head], self.n - head_y - 1)
-        
-        # Safeguard 2: Make sure the snake does not collide with its tail
+        # Safeguard: Make sure the snake does not collide with its tail
         loop_length = 2*(self.m + self.n + sum(left_dives) + sum(right_dives) -2)
         if self.snake_length > loop_length:
             idx_dive_tail = (self.snake[0]//self.n -1)//2
@@ -132,7 +127,6 @@ class GridSolver_AsymDive():
                 right_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
             elif self.snake[1] == self.snake[0]-1: # Tail is on the left side
                 left_dives[idx_dive_tail] += (self.snake_length - loop_length+1)//2
-
 
         idx_dive_apple = (apple_x-1)//2
         r_dive_apple = self.n - apple_y - 1
@@ -188,6 +182,7 @@ class GridSolver_AsymDive():
                     head_y_gap = self.n - head_y - 1
                 else:
                     head_y_gap = left_dives[idx_x] -head_y
+                    self.left_dives[idx_x] = left_dives[idx_x]
 
             idx_x -=1
             while idx_x>=0:
@@ -222,6 +217,7 @@ class GridSolver_AsymDive():
                     head_y_gap = head_y 
                 else:
                     head_y_gap = head_y - self.n + right_dives[idx_x]
+                    self.right_dives[idx_x] = right_dives[idx_x]
 
             idx_x +=1
             while idx_x<len_dives:
