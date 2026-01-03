@@ -18,17 +18,33 @@ class GridSolver_AsymDive():
     def start_new_game_even(self, start):
         self.snake_length = 1
         self.snake = [start]
-        self.head = divmod(start, self.n)
+        self.head = start
+        self.head_coord = divmod(start, self.n)
         self.left_dives = [0]*(self.m//2-1)
         self.right_dives = [0]*(self.m//2-1)
-        self.update_side()
         self.new_loop = True
 
     def find_path_even(self, apple):
         if self.new_loop:
-            self.decide_dive_lengths(apple)
+            self.update_side()
+            if self.snake_length < self.cutoff_length:
+                self.decide_dive_lengths(apple)
+            else:# self.snake_length == self.cutoff_length:
+                lim = (self.head_coord[0]-1)//2 + 1 - self.is_left
+                if self.is_left:
+                    for i in range(lim):
+                        self.right_dives[i] = self.n - self.left_dives[i] - 2
+                    for i in range(lim, len(self.left_dives)):
+                        self.left_dives[i] = self.n - self.right_dives[i] - 2
+                else:
+                    for i in range(lim):
+                        self.left_dives[i] = self.n - self.right_dives[i] - 2
+                    for i in range(lim, len(self.left_dives)):
+                        self.right_dives[i] = self.n - self.left_dives[i] - 2
+                self.new_loop = False
+
             self.loop = asym_dive_cycle_even(self.n, self.left_dives, self.right_dives)
-            self.idx_head = self.loop.index(self.snake[-1])
+            self.idx_head = self.loop.index(self.head)
             self.idx_bottom_right = 2*sum(self.left_dives) + self.m + self.n -3
 
         beg = self.idx_head+1
@@ -41,31 +57,12 @@ class GridSolver_AsymDive():
 
         self.update_snake(path)
         self.idx_head = idx_apple
-        self.update_side()
-
-        if self.snake_length == self.cutoff_length:
-            lim = (self.head[0]-1)//2 + 1 - self.is_left
-            if self.is_left:
-                for i in range(lim):
-                    self.right_dives[i] = self.n - self.left_dives[i] - 2
-                for i in range(lim, len(self.left_dives)):
-                    self.left_dives[i] = self.n - self.right_dives[i] - 2
-            else:
-                for i in range(lim):
-                    self.left_dives[i] = self.n - self.right_dives[i] - 2
-                for i in range(lim, len(self.left_dives)):
-                    self.right_dives[i] = self.n - self.left_dives[i] - 2
-
-            self.loop = asym_dive_cycle_even(self.n, self.left_dives, self.right_dives)
-            self.idx_head = self.loop.index(self.snake[-1])
-            self.idx_bottom_right = 2*sum(self.left_dives) + self.m + self.n -3
-            self.new_loop = False
-    
         return path
 
     def update_snake(self, path):
         self.snake_length += 1
-        self.head = divmod(path[-1], self.n)
+        self.head = path[-1]
+        self.head_coord = divmod(path[-1], self.n)
 
         p = len(path)
         if self.snake_length <= p:
@@ -77,18 +74,18 @@ class GridSolver_AsymDive():
             self.snake = self.snake[-need_from_snake:] + path
 
     def update_side(self):
-        head_x, head_y = self.head
-        if head_x == 0:
-            self.is_left = False
-            return
-        elif head_x == self.m -1:
-            self.is_left = True
-            return
         # if the snake lies on a single line, the side does not matter
         # except when it touches one edge
-        elif self.snake_length<self.n:
+        if self.snake_length<self.n:
             # particular cases
-            if head_y == 0:
+            head_x, head_y = self.head_coord
+            if head_x == 0:
+                self.is_left = False
+                return
+            elif head_x == self.m -1:
+                self.is_left = True
+                return
+            elif head_y == 0:
                 self.is_left = True
                 return
             elif head_y == self.n-1:
@@ -104,7 +101,7 @@ class GridSolver_AsymDive():
     
     def decide_dive_lengths(self, apple):
         """ Based on the position of the snake and the apple, find a good dive cycle to get to the apple quickly """
-        head_x, head_y = self.head
+        head_x, head_y = self.head_coord
         apple_x, apple_y = divmod(apple, self.n)
         
         # Find out whether we will reach apple from left side or not
@@ -127,7 +124,7 @@ class GridSolver_AsymDive():
         idx_dive_head = (head_x-1)//2
         if self.is_left is None:
             # The snake forms a line so we decide to orient the snake in the fastest way to reach the apple
-            self.is_left = apple>self.snake[-1]
+            self.is_left = apple>self.head
             if self.is_left:
                 self.left_dives[idx_dive_head] = head_y
             else:
@@ -149,8 +146,8 @@ class GridSolver_AsymDive():
         """ Delete as much dives as possible in a safe way """
         len_dives = self.m//2 -1
         if self.is_left is None or self.loop is None:
-            self.left_dives = [0 for _ in range(len_dives)]
-            self.right_dives = [0 for _ in range(len_dives)]
+            self.left_dives = [0]*len_dives
+            self.right_dives = [0]*len_dives
             return
         
         def reduce_dives(dive_list, margin, start, stop, step=1):
@@ -167,7 +164,7 @@ class GridSolver_AsymDive():
         if margin<=0:
             return
         
-        idx_head = (self.head[0]-1)//2
+        idx_head = (self.head_coord[0]-1)//2
         if self.is_left:
             if reach_apple_from_left_side:
                 reduce_dives(self.left_dives, margin, idx_head+1, idx_apple)
