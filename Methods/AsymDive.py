@@ -141,8 +141,12 @@ class GridSolver_AsymDive():
                 if self.right_dives[idx_dive_apple]< r_dive_apple:
                     self.left_dives[idx_dive_apple] = apple_y
                 elif self.snake[0]//self.n == apple_x and self.snake[0]<apple_x*self.n+apple_y:
+                    #Too dangerous to get that apple from the left side.
+                    #Let the snake loop around and eat the apple from the right side
                     pass
                 else:
+                    # Apple in right part of the loop but that part is clear
+                    # So reach the apple anyway
                     self.left_dives[idx_dive_apple] = apple_y
                     self.right_dives[idx_dive_apple] = r_dive_apple-1
         else:
@@ -150,8 +154,12 @@ class GridSolver_AsymDive():
                 if self.left_dives[idx_dive_apple]< apple_y:
                     self.right_dives[idx_dive_apple] = r_dive_apple
                 elif self.snake[0]//self.n == apple_x and self.snake[0]>apple_x*self.n+apple_y:
+                    #Too dangerous to get that apple from the right side.
+                    #Let the snake loop around and eat the apple from the left side
                     pass
                 else:
+                    # Apple in left part of the loop but that part is clear
+                    # So reach the apple anyway
                     self.right_dives[idx_dive_apple] = r_dive_apple
                     self.left_dives[idx_dive_apple] = apple_y-1
 
@@ -184,13 +192,14 @@ class GridSolver_AsymDive():
         if self.is_left:
             if apple_is_left:
                 end_offset = 1-apple_x%2
-                # if apple_x<head_x:
-                #     self.left_dives[idx_dive_head+1:] = [0]*(len_dives-idx_dive_head-1)
-                #     self.right_dives = [0]*len_dives
-                #     self.left_dives[:idx_dive_head+end_offset] = [0]*(idx_dive_head+end_offset)
-                #     return
-                
-                reduce_dives(self.left_dives, margin, idx_dive_head+1, idx_dive_apple+end_offset)
+                if apple_x<head_x:
+                    # Edge case in the early game where an apple spawns on the left edge of the grid above the snake
+                    # In this case the snake has to do almost an entire loop
+                    margin = reduce_dives(self.left_dives, margin, idx_dive_head+1, len_dives)
+                    margin = reduce_dives(self.right_dives, margin, len_dives-1, -1, -1)
+                    reduce_dives(self.left_dives, margin, 0,  idx_dive_apple+end_offset)
+                else:
+                    reduce_dives(self.left_dives, margin, idx_dive_head+1, idx_dive_apple+end_offset)
             else:
                 end_offset = apple_x%2
                 margin = reduce_dives(self.left_dives, margin, idx_dive_head+1, len_dives)
@@ -202,9 +211,10 @@ class GridSolver_AsymDive():
                 reduce_dives(self.left_dives, margin, 0,  idx_dive_apple+end_offset)
             else:
                 end_offset = apple_x%2
-                # if apple_x>head_x:
-                #     self.right_dives[:idx_dive_head] = [0]*(idx_dive_head)
-                #     self.left_dives = [0]*len_dives
-                #     self.right_dives[idx_dive_apple-end_offset+1:] = [0]*(len_dives-idx_dive_apple+end_offset-1)
-                #     return
-                reduce_dives(self.right_dives, margin, idx_dive_head-1, idx_dive_apple-end_offset,-1)
+                if apple_x>head_x:
+                    # Similar than above
+                    margin = reduce_dives(self.right_dives, margin, idx_dive_head-1, -1, -1)
+                    margin = reduce_dives(self.left_dives, margin, 0, len_dives)
+                    reduce_dives(self.right_dives, margin, len_dives-1, idx_dive_apple-end_offset,-1)
+                else: 
+                    reduce_dives(self.right_dives, margin, idx_dive_head-1, idx_dive_apple-end_offset,-1)
