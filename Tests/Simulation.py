@@ -113,7 +113,7 @@ def run_multiple_games(adjacency, solver, N, tester = simulate_rejection_samplin
     """
     Collects moves-per-apple and total moves over N games
     """
-    total_moves = [0] * N
+    total_moves = []
     total_moves_per_apple = [0] * (len(adjacency)-1)
     num_fails = 0
     for game in range(N):
@@ -121,7 +121,8 @@ def run_multiple_games(adjacency, solver, N, tester = simulate_rejection_samplin
         if moves_per_apple is None:
             num_fails += 1
             print('Failure: ' + solver.name)
-        total_moves[game] = sum(moves_per_apple)
+            continue
+        total_moves.append( sum(moves_per_apple) )
         for apple, moves in enumerate(moves_per_apple):
             total_moves_per_apple[apple] += moves
     num_passes = N - num_fails

@@ -1,5 +1,5 @@
 from GridsAndGraphs.Adjacencies import find_grid_adjacency
-from GridsAndGraphs.CycleAndTheta import find_HC_haircomb, find_theta_haircomb, find_loop_indices, find_adjacent_loop_indices
+from GridsAndGraphs.CycleAndTheta import find_HC_haircomb, find_theta_haircomb, find_loop_indices_HC, find_adjacent_loop_indices
 from itertools import islice, chain
 
 class GridSolver_LoopAndGreedySkip():
@@ -20,7 +20,7 @@ class GridSolver_LoopAndGreedySkip():
             raise ValueError('Solver not implemented on odd-by-odd grids!')
             
         
-        self.loop_indices = find_loop_indices(self.loop)
+        self.loop_indices = find_loop_indices_HC(self.loop)
         self.neighbouring_loop_indices = find_adjacent_loop_indices(self.adjacency, self.loop, self.loop_indices)
         
 

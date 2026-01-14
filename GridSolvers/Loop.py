@@ -3,7 +3,7 @@ A grid solver which follows the 'Loop' strategy.
 Sticks to a Hamiltonian Cycle, unless the grid has odd area A, 
 then it follows a spanning Theta(A-3, 2, 2) subgraph.
 """
-from GridsAndGraphs.CycleAndTheta import find_HC_haircomb, find_theta_haircomb, find_loop_indices
+from GridsAndGraphs.CycleAndTheta import find_HC_haircomb, find_theta_haircomb, find_loop_indices_HC, find_loop_indices_Theta
 from itertools import islice, chain
 
 
@@ -18,13 +18,12 @@ class GridSolver_Loop():
             self.find_path = self.find_path_even
             self.loop = find_HC(m, n)
             self.estimate_moves_per_apple = self.estimate_moves_per_apple_even
+            self.loop_indices = find_loop_indices_HC(self.loop)
         else:
             self.start_new_game = self.start_new_game_odd
             self.find_path = self.find_path_odd
             self.loop, self.hole, antihole = find_theta(m, n)
-            
-        self.loop_indices = find_loop_indices(self.loop)
-        if not is_even_grid:
+            self.loop_indices = find_loop_indices_Theta(self.loop, self.hole, antihole)
             self.loop_indices[self.hole] = self.loop_indices[antihole]
 
     def start_new_game_even(self, start):

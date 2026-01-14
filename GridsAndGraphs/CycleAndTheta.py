@@ -3,11 +3,19 @@ Some simple Hamiltonian Cycles of even grids
 and spanning Theta(m*n-3, 2, 2) subgraphs of odd grids.
 """
 
-def find_loop_indices(loop):
+def find_loop_indices_HC(loop):
     loop_indices = [None] * len(loop)
     for index, point in enumerate(loop):
         loop_indices[point] = index
     return loop_indices
+
+def find_loop_indices_Theta(loop, hole, antihole):
+    loop_indices = [None] * (len(loop)+1)
+    for index, point in enumerate(loop):
+        loop_indices[point] = index
+    loop_indices[hole] = loop_indices[antihole]
+    return loop_indices
+
 
 def find_adjacent_loop_indices(adjacency, loop, loop_indices):
 	adj_loop_indices = []
