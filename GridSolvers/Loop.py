@@ -28,11 +28,22 @@ class GridSolver_Loop():
 
     def start_new_game_even(self, start):
         self.index_head = self.loop.index(start)
+        self.snake_length = 1
+
+    @property
+    def snake(self):
+        j = self.index_head+1
+        i = j-self.snake_length
+        if i>=0:
+            return self.loop[i:j]
+        l = len(self.loop)
+        return self.loop[i+l:l]+self.loop[:j]
 
     def find_path_even(self, apple):
         loop = self.loop
         j = self.loop_indices[apple]
         i, self.index_head = self.index_head, j
+        self.snake_length+=1
         if i < j:
             return islice(loop, i+1, j+1)
         return chain(
@@ -50,6 +61,7 @@ class GridSolver_Loop():
         if start == self.hole:
             self.hole, self.loop[-1] = self.loop[-1], self.hole
         self.index_head = self.loop.index(start)
+        self.snake_length = 1
 
     def find_path_odd(self, apple):
         loop = self.loop
@@ -57,6 +69,7 @@ class GridSolver_Loop():
             self.hole, loop[-1] = loop[-1], self.hole
         j = self.loop_indices[apple]
         i, self.index_head = self.index_head, j
+        self.snake_length += 1
         if i < j:
             return islice(loop, i+1, j+1)
         return chain(

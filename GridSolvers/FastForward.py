@@ -1,5 +1,5 @@
-from GridSpecificTools.GridGraphAndSymmetries import find_grid_adjacency, find_Manhattan_distance_func
-from GridSpecificTools.Pathfinding import astar
+from GridsAndGraphs.Adjacencies import find_grid_adjacency, find_Manhattan_distance_func
+from GridsAndGraphs.Pathfinding import astar
 
 class Optimizer_FastForward:
     def __init__(self, SolverClass, m, n, *args, end_FF=None, **kwargs):
@@ -25,7 +25,7 @@ class Optimizer_FastForward:
         snake = self.solver.snake.copy()
         head = snake[-1]
 
-        basic_path = self.solver.find_path(apple)
+        basic_path = list(self.solver.find_path(apple))
         if len(basic_path)<= l:
             return basic_path
         

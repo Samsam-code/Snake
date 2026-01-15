@@ -1,4 +1,4 @@
-from GridSpecificTools.DiveCycle import dive_cycle_even
+from GridsAndGraphs.DiveCycle import dive_cycle_even
 
 class GridSolver_Dive():
     def __init__(self, m, n):
