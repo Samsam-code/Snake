@@ -3,7 +3,7 @@ from GridSpecificTools.DiveCycle import dive_cycle_even
 class GridSolver_Dive():
     def __init__(self, m, n):
         if m%2 == 0:
-            self.name = 'Dive Even'
+            self.name = 'Dive'
             self.start_new_game = self.start_new_game_even
             self.find_path = self.find_path_even
         else:

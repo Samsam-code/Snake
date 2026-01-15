@@ -69,8 +69,8 @@ def astar_with_temporary_obstacles(start, goal, blocked, adjacency, heuristic, l
             state = (current, new_score)
             if state not in visited:
                 visited.add(state)
-            h_score = new_score + heuristic(neighbor, goal)
-            if h_score<=limit:
-                heapq.heappush(prio_queue, (h_score, -new_score, neighbor, path + [neighbor]))
+                h_score = new_score + heuristic(neighbor, goal)
+                if h_score<=limit:
+                    heapq.heappush(prio_queue, (h_score, -new_score, neighbor, path + [neighbor]))
 
     return None

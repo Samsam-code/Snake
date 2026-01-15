@@ -25,12 +25,12 @@ def dive_cycle_even(n,dive_lengths):
 
     return path
 
-def asym_dive_cycle_even(n,left_dives, right_dives):
+def asym_dive_cycle_even(n,left_dives, right_dives, offset_x=0):
     # There should be m//2 -1 dives
     path = []
 
     # Dives from left side
-    nx = n
+    nx = (offset_x+1)*n
     for l in left_dives:
         path.extend(range(nx, nx+l+1))
         nx+=n
@@ -48,7 +48,7 @@ def asym_dive_cycle_even(n,left_dives, right_dives):
         nx-=n
 
     # Go to left side along the top edge
-    path.extend(range(n-1, -1, -1))
+    path.extend(range(nx-1, nx-n-1, -1))
 
     return path
 
