@@ -1,0 +1,16 @@
+ExactValues/__pycache__/__init__.cpython-310.pyc
+ExactValues/__pycache__/Loop.cpython-310.pyc
+GridsAndGraphs/__pycache__/__init__.cpython-310.pyc
+GridsAndGraphs/__pycache__/Pathfinding.cpython-310.pyc
+GridsAndGraphs/__pycache__/DiveCycle.cpython-310.pyc
+GridsAndGraphs/__pycache__/CycleAndTheta.cpython-310.pyc
+GridsAndGraphs/__pycache__/Adjacencies.cpython-310.pyc
+GridSolvers/__pycache__/__init__.cpython-310.pyc
+GridSolvers/__pycache__/AsymDive.cpython-310.pyc
+GridSolvers/__pycache__/Dive.cpython-310.pyc
+GridSolvers/__pycache__/FastForward.cpython-310.pyc
+GridSolvers/__pycache__/Loop.cpython-310.pyc
+GridSolvers/__pycache__/LoopAndSkip.cpython-310.pyc
+Tests/__pycache__/Animation.cpython-310.pyc
+Tests/__pycache__/Comparison.cpython-310.pyc
+Tests/__pycache__/Simulation.cpython-310.pyc

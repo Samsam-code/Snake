@@ -27,7 +27,7 @@ class GridAnimator():
         CELL = BOARD_SIZE // n
         RADIUS = CELL//2 - SEG_MARGIN
         self.CELL = CELL
-        self.RADIUS = RADIUS    
+        self.RADIUS = RADIUS
 
         self.adjacency = find_grid_adjacency(m, n)
 
@@ -297,7 +297,7 @@ class GridAnimator():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return None
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     if self.fps < 10:
