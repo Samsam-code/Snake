@@ -13,7 +13,7 @@ class GridSolver_AsymDive():
         self.n = n
         self.area = m * n
         self.loop = None
-        self.cutoff_length = cutoff_length or self.area//2+2*self.m
+        self.cutoff_length = cutoff_length or 3*self.area//5
 
     def start_new_game_even(self, start):
         self.snake_length = 1
