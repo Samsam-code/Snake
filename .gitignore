@@ -15,3 +15,4 @@ Tests/__pycache__/Animation.cpython-310.pyc
 Tests/__pycache__/Comparison.cpython-310.pyc
 Tests/__pycache__/Simulation.cpython-310.pyc
 GridSolvers/__pycache__/Drone.cpython-310.pyc
+GridSolvers/__pycache__/SafeAStar.cpython-310.pyc

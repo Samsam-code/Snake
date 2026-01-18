@@ -38,9 +38,11 @@ def astar(start, goal, blocked, adjacency, heuristic, limit=INF):
                 heapq.heappush(prio_queue, (h_score, -new_score, neighbor))
     return None
 
-def astar_with_temporary_obstacles(start, goal, blocked, adjacency, heuristic, limit=INF):
-    # blocked is a dict {cell: end_time}
-    # cells are blocked from t=0 until their end_time.
+def astar_temp_obstacles(start, goal, blocked, adjacency, heuristic, limit=INF):
+    """
+    blocked is a dict {cell: end_time}
+    cells are blocked from t=0 until their end_time.
+    """
     
     # Priority queue: (heuristic, -score, cell, path)
     prio_queue = []
@@ -66,7 +68,7 @@ def astar_with_temporary_obstacles(start, goal, blocked, adjacency, heuristic, l
             if neighbor in path:
                 continue
             
-            state = (current, new_score)
+            state = (neighbor, new_score)
             if state not in visited:
                 visited.add(state)
                 h_score = new_score + heuristic(neighbor, goal)
