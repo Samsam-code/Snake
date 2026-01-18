@@ -15,39 +15,35 @@ def find_grid_adjacency(m, n):
     Indexes cell (i,j) as i*n + j (row-major order),
     stores result as tuple of tuples.
     """
+    UP, DOWN = -n, n
+    LEFT, RIGHT = -1, 1
+
     adj = []
-    i = 0   # row
-    j = 0   # column
-    for index in range(m*n):
-        # build neighbour list of node 'index'
-        nb = []
+    row = 0
+    col = 0
+    index = 0
+    for row in range(m):
+        for col in range(n):
+            # build neighbour list of node 'index'
+            nb = []
 
-        # Left, except first column
-        if j > 0:
-            nb.append(index - 1)
+            if row > 0:
+                nb.append(index + UP)
 
-        # Right, except last column
-        if j < n-1:
-            nb.append(index + 1)
+            if row < m-1:
+                nb.append(index + DOWN)
 
-        # Up, except first row
-        if i > 0:
-            nb.append(index - n)
+            if col > 0:
+                nb.append(index + LEFT)
 
-        # Down, except last row
-        if i < m-1:
-            nb.append(index + n)
-        
-        adj.append(nb)
+            if col < n-1:
+                nb.append(index + RIGHT)
 
-        # increment column, wrap row
-        j += 1
-        if j == n:
-            j = 0
-            i += 1
+            adj.append(tuple(nb))
+            index += 1
 
     # store structure as tuple of tuples
-    return tuple(tuple(nb) for nb in adj)
+    return tuple(adj)
 
 
 def find_reverse_adjacency(adjacency):
@@ -142,3 +138,41 @@ def find_grid_adjacency_dive_half(m, n):
         raise ValueError('Dive adjacency is not yet implemented for odd m, even n!')
     else:
         raise ValueError('Dive adjacency is not yet implemented for odd m*n!')
+    
+def find_grid_adjacency_cell(m, n):
+    """
+    Returns adjacency list of mxn Cell grid.
+    Indexes cell (i,j) as i*n + j (row-major order),
+    stores result as tuple of tuples.
+    """
+    # even row = left, odd row = right
+    # even col = down, odd col = up
+
+    UP, DOWN = -n, n
+    LEFT, RIGHT = -1, 1
+    adj = []
+    index = 0
+    even_row = True
+    for row in range(m):
+        even_col = True
+        for col in range(n):
+            nb = []
+            if even_col:
+                if row < m-1:
+                    nb.append(index+DOWN)
+            elif row > 0:
+                nb.append(index+UP)
+
+            if even_row:
+                if col > 0:
+                    nb.append(index+LEFT)
+            elif col < m-1:
+                nb.append(index+RIGHT)
+
+            adj.append(tuple(nb))
+            index += 1
+            even_col = not even_col
+        even_row = not even_row
+
+    # store structure as tuple of tuples
+    return tuple(adj)

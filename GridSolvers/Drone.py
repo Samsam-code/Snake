@@ -1,16 +1,20 @@
-from GridsAndGraphs.Adjacencies import find_grid_adjacency
+from GridsAndGraphs.Adjacencies import find_grid_adjacency_cell
 class GridSolver_DronesRules():
     def __init__(self, m, n):
         self.m = m
         self.n = n
         self.area = m*n
         self.directions = (n, -n, 1, -1)
-        self.adjacency = find_grid_adjacency(m, n)
+        self.adjacency = find_grid_adjacency_cell(m, n)
         self.name = 'DronesRules'
-        pass
+
+        self.UP = -n
+        self.DOWN = n
+        self.LEFT = -1
+        self.RIGHT = 1
 
     def start_new_game(self, start):
-        self.i, self.j = divmod(start, self.n)
+        self.row, self.col = divmod(start, self.n)
         self.occupied = [False] * self.area 
         self.occupied[start] = True
         self.direction_head_went = [None] * self.area 
@@ -19,64 +23,62 @@ class GridSolver_DronesRules():
 
     def find_path(self, apple):
         head = self.head
-        i, j = divmod(head, self.n)
+        row, col = divmod(head, self.n)
         self.head = apple
-        target_i, target_j = divmod(apple, self.n)
-        i_even = i%2 == 0
-        j_even = j%2 == 0
-
-        i_vector, j_vector = self.n, 1
+        target_row, target_col = divmod(apple, self.n)
+        row_even = row%2 == 0
+        col_even = col%2 == 0
 
         while True:
             self.occupied[self.tail] = False
-            if i_even:
-                if j_even:
-                    if target_j < j:
-                        first_vector  = -j_vector
-                        second_vector =  i_vector 
+            if row_even:
+                if col_even:
+                    if target_col < col:
+                        first_vector  = self.LEFT
+                        second_vector =  self.DOWN 
                     else:
-                        first_vector  =  i_vector
-                        second_vector = -j_vector 
+                        first_vector  =  self.DOWN
+                        second_vector = self.LEFT 
                 else:
-                    if target_i < i:
-                        first_vector  = -i_vector
-                        second_vector = -j_vector
+                    if target_row < row:
+                        first_vector  = self.UP
+                        second_vector = self.LEFT
                     else:
-                        first_vector  = -j_vector
-                        second_vector = -i_vector
+                        first_vector  = self.LEFT
+                        second_vector = self.UP
             else:
-                if j_even:
-                    if target_i > i:
-                        first_vector  =  i_vector
-                        second_vector =  j_vector
+                if col_even:
+                    if target_row > row:
+                        first_vector  =  self.DOWN
+                        second_vector =  self.RIGHT
                     else:
-                        first_vector  =  j_vector
-                        second_vector =  i_vector
+                        first_vector  =  self.RIGHT
+                        second_vector =  self.DOWN
                 else:
-                    if target_j > j:
-                        first_vector  =  j_vector
-                        second_vector = -i_vector
+                    if target_col > col:
+                        first_vector  =  self.RIGHT
+                        second_vector = self.UP
                     else:
-                        first_vector  = -i_vector
-                        second_vector =  j_vector
+                        first_vector  = self.UP
+                        second_vector =  self.RIGHT
 
             if head+first_vector in self.adjacency[head] and not self.occupied[head+first_vector]:
                 direction = first_vector
             else:
                 direction = second_vector
 
-            if direction == i_vector:
-                i += 1
-                i_even = not i_even
-            elif direction == -i_vector:
-                i -= 1
-                i_even = not i_even
-            elif direction == j_vector:
-                j += 1
-                j_even = not j_even
-            elif direction == -j_vector:
-                j -= 1
-                j_even = not j_even
+            if direction == self.DOWN:
+                row += 1
+                row_even = not row_even
+            elif direction == self.UP:
+                row -= 1
+                row_even = not row_even
+            elif direction == self.RIGHT:
+                col += 1
+                col_even = not col_even
+            elif direction == self.LEFT:
+                col -= 1
+                col_even = not col_even
 
             self.direction_head_went[head] = direction
             head += direction
