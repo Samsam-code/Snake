@@ -1,12 +1,9 @@
-from GridSolvers.Templates import GridSolverTemplate_to_Loop
+from GridSolvers.Templates import GridSolverTemplate, ModifySolver_TransitionHC
 from GridsAndGraphs.Adjacencies import find_adjacency_AOW
 
-class GridSolver_DronesRules(GridSolverTemplate_to_Loop):
-    def __init__(self, m, n, name='Drone\'s Rules', cutoff='BEST GUESS'):
-        if cutoff == 'BEST GUESS':
-            const = 0.62    # looks good on the 32x32 grid
-            cutoff = int( m * n * const)
-        super().__init__(m, n, find_adjacency=find_adjacency_AOW, name=name, cutoff=cutoff)
+class GridSolver_DronesRules(GridSolverTemplate):
+    def __init__(self, m, n, name='Drone\'s Rules'):
+        super().__init__(m, n, find_adjacency=find_adjacency_AOW, name=name)
 
     def find_and_commit_moves(self):
         carved_path = self.carved_path
@@ -97,3 +94,6 @@ class GridSolver_DronesRules(GridSolverTemplate_to_Loop):
 
         # since only certain transitions are allowed between the states
         # this implementation *could* be slightly optimised
+
+cutoff_HC_guess = 0.62 # looks good on the 32x32 grid
+GridSolver_DronesRules_TransitionHC = ModifySolver_TransitionHC(GridSolver_DronesRules, cutoff_HC_guess)

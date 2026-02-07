@@ -27,12 +27,13 @@ def find_adjacent_indices_HC(adjacency, loop, loop_indices):
 		adj_loop_indices.append(temp) 
 	return adj_loop_indices
 
-def find_list_loop_from_carved_loop(carved_loop):
-    list_loop = [0]
-    vertex = carved_loop[0]
-    while vertex != 0:
+def find_list_loop_from_carved_loop(carved_loop, head=0):
+    list_loop = []
+    vertex = carved_loop[head]
+    while vertex != head:
         list_loop.append(vertex)
         vertex = carved_loop[vertex]
+    list_loop.append(head)
     return list_loop
 
 

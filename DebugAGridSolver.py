@@ -8,7 +8,7 @@ from Tests.Animation import GridAnimator
 from Tests.Debug import animate_failures
 
 # import method to test
-from GridSolvers.DronesRules import GridSolver_DronesRules
+from GridSolvers.DronesRules import GridSolver_DronesRules_TransitionHC
 
 # choose grid size, m <= n
 m = 16
@@ -18,7 +18,7 @@ n = 16
 N = 1000
 
 # initialise solver
-solver = GridSolver_DronesRules(m, n)
+solver = GridSolver_DronesRules_TransitionHC(m, n)
 
 # run test
 animator = GridAnimator(m, n, solver)
