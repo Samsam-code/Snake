@@ -10,7 +10,7 @@ import time
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
-from GridsAndGraphs.Adjacencies import find_grid_adjacency
+from GridsAndGraphs.Adjacencies import find_adjacency_grid
 from Tests.Simulation import run_multiple_games
 
 def find_ticks_per_apple(area):
@@ -38,7 +38,7 @@ def simulate_tfwr_rejection_sampling(adjacency, solver, seed=None):
     occupied[start] = True
     head = start
     tail = head
-    solver.start_new_game(start)
+    move_generator = solver.yield_moves_to_simulator(start)
     next_apple = choice(vertices)
     while next_apple == start:
         next_apple = choice(vertices)
@@ -49,7 +49,9 @@ def simulate_tfwr_rejection_sampling(adjacency, solver, seed=None):
             while next_apple == apple or occupied[next_apple]:
                 next_apple = choice(vertices)
         move_counter = 0
-        for new_head in solver.find_path(apple):
+        solver.apple = apple
+        while True:
+            new_head = next(move_generator)
             move_counter += 1
             if new_head not in adjacency[head]:
                 return None
@@ -70,6 +72,7 @@ def simulate_tfwr_rejection_sampling(adjacency, solver, seed=None):
                 next_apple = choice(vertices)
                 while occupied[next_apple] or next_apple == apple:
                     next_apple = choice(vertices)
+                solver.next_apple = next_apple
         score_per_apple[apple_num] = move_counter
     return score_per_apple
 
@@ -114,7 +117,7 @@ def compare_methods_tfrw(m, n, N, solvers, colours = None):
         cmap = plt.get_cmap("tab10")   # try "tab20" if many solvers
         colours = [cmap(i) for i in range(len(solvers))]
 
-    adjacency = find_grid_adjacency(m, n)
+    adjacency = find_adjacency_grid(m, n)
     scotts_constant = 3.5 * N**(-1/3)   
     last_time = time.time()
     for index, solver in enumerate(solvers):

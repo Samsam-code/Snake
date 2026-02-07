@@ -1,4 +1,11 @@
-from GridsAndGraphs.Adjacencies import find_grid_adjacency, find_Manhattan_distance_func
+"""
+Fast Forward Optimizer for Grid Solvers.
+
+Implements the 'Fast Forward' technique. Uses a modified A* search to find a path to the apple 
+that ends up in the same position as the underlying method.
+"""
+
+from GridsAndGraphs.Adjacencies import find_adjacency_grid, find_Manhattan_distance_func
 from GridsAndGraphs.Pathfinding import astar
 
 class Optimizer_FastForward:
@@ -7,10 +14,16 @@ class Optimizer_FastForward:
         self.name = self.solver.name + " + FF"
 
         # Avoid doing adjacency computation twice if possible
-        self.adjacency = self.solver.adjacency if hasattr(self.solver, "adjacency") else find_grid_adjacency(m, n)
+        self.adjacency = self.solver.adjacency if hasattr(self.solver, "adjacency") else find_adjacency_grid(m, n)
         self.ManhattanDistance = find_Manhattan_distance_func(n)
 
         self.end_FF = end_FF or m*n//2
+
+    def yield_moves_to_simulator(self, start):
+        self.start_new_game()
+        self.start_new_game(start)
+        while True:
+            yield from self.find_path(self.apple)
 
     def start_new_game(self, start):
         self.solver.start_new_game(start)

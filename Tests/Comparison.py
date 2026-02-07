@@ -2,7 +2,7 @@ import time
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
-from GridsAndGraphs.Adjacencies import find_grid_adjacency
+from GridsAndGraphs.Adjacencies import find_adjacency_grid
 from Tests.Simulation import run_multiple_games        
 
 def compare_methods(m, n, N, solvers, plot_estimates = False, colours = None):
@@ -23,8 +23,8 @@ def compare_methods(m, n, N, solvers, plot_estimates = False, colours = None):
 
     fig2, ax2 = plt.subplots(1)
     ax2.set_title(f'Mean moves per apple over {N} tests on {m}x{n} grid')
-    ax2.set_xlabel('apple')
-    ax2.set_ylabel('mean moves taken')
+    ax2.set_xlabel('apples easten')
+    ax2.set_ylabel('mean moves to next apple')
     
     if colours == None or len(colours) < len(solvers):
         cmap = plt.get_cmap("tab10")   # try "tab20" if many solvers
@@ -41,7 +41,7 @@ def compare_methods(m, n, N, solvers, plot_estimates = False, colours = None):
             ax2.plot(apple_axis, estimate_mpa, color=colours[index], linestyle='--')
             estimate_totals[index] = int(estimate_total)
     
-    adjacency = find_grid_adjacency(m, n)
+    adjacency = find_adjacency_grid(m, n)
     scotts_constant = 3.5 * N**(-1/3)   
     last_time = time.time()
     for index, solver in enumerate(solvers):

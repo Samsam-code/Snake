@@ -1,144 +1,124 @@
 """
-Adjacency lists of the grid graph and some directed subgraphs.
+The adjacency list of a directed graph is a list of 'out' edges of each vertex.
+Here we define adjacency lists of the grid graph and some directed subgraphs,
+stored these as tuples of tuples.
+Row-major order is used: cell (i, j) is indexed as i * n + j.
 """
 
-def find_Manhattan_distance_func(n):
-    def ManhattanDistance(x, y):
-        rx, cx = divmod(x, n)
-        ry, cy = divmod(y, n)
-        return abs(rx - ry) + abs(cx - cy)
-    return ManhattanDistance
-
-def find_grid_adjacency(m, n):
-    """
-    Returns adjacency list of mxn grid.
-    Indexes cell (i,j) as i*n + j (row-major order),
-    stores result as tuple of tuples.
-    """
-    adj = []
-    i = 0   # row
-    j = 0   # column
-    for index in range(m*n):
-        # build neighbour list of node 'index'
-        nb = []
-
-        # Left, except first column
-        if j > 0:
-            nb.append(index - 1)
-
-        # Right, except last column
-        if j < n-1:
-            nb.append(index + 1)
-
-        # Up, except first row
-        if i > 0:
-            nb.append(index - n)
-
-        # Down, except last row
-        if i < m-1:
-            nb.append(index + n)
-        
-        adj.append(nb)
-
-        # increment column, wrap row
-        j += 1
-        if j == n:
-            j = 0
-            i += 1
-
-    # store structure as tuple of tuples
-    return tuple(tuple(nb) for nb in adj)
-
-
 def find_reverse_adjacency(adjacency):
+    """
+    Returns the reverse adjacency list — the 'in' edges of each vertex.
+    """
     rev_adj = [[] for _ in adjacency]
-    for i, forward_edges in enumerate(adjacency):
-        for j in forward_edges:
-            rev_adj[j].append(i)
+    for x, forward_edges in enumerate(adjacency):
+        for y in forward_edges:
+            rev_adj[y].append(x)
     return tuple(tuple(lst) for lst in rev_adj)
 
+def find_adjacency_from_allowed_directions(allowed_directions):
+    adjacency = []
+    for vertex, dirs in enumerate(allowed_directions):
+        adjacency.append(tuple([vertex+dir for dir in dirs]))
+    return tuple(adjacency)
 
-def find_grid_adjacency_dive(m, n):
-    """
-    The Diving subgraph
-    """
-    if m%2 == 0:
-        adj = []
-        i = 0   # row
-        j = 0   # column
-        for index in range(m*n):
-            # build neighbour list of node 'index'
-            nb = []
+# now define each graph in terms of the allowed directions of each vertex
 
-            # Left
-            if (i == 0 and j>0) or (0 < i < m-1 and i%2==0 and 0 < j):
-                nb.append(index - 1)
 
-            # Right
-            if (i == m-1 and j<n-1) or (0 < i < m-1 and i%2==1 and j < n-1):
-                nb.append(index + 1)
+# ==== The grid ====
 
-            # Up
-            if 0 < i and (j==n-1 or (0 < i < m-1 and i%2==0 and 0 < j < n-1)):
-                nb.append(index - n)
+# Left      except first column
+# Right     except last column
+# Up        except first row
+# Down      Except last row
 
-            # Down
-            if i < m-1 and (j==0 or (0 < i < m-1 and i%2==1 and 0 < j < n-1)):
-                nb.append(index + n)
-            
-            adj.append(nb)
+def find_allowed_directions_grid(m, n):
+    LEFT, RIGHT, UP, DOWN = -1, 1, -n, n
+    allowed_directions = []
+    for row in range(m):
+        for column in range(n):
+            dirs = []
+            if column > 0:
+                dirs.append(LEFT)
+            if column < n-1:
+                dirs.append(RIGHT)
+            if row > 0:
+                dirs.append(UP)
+            if row < m-1:
+                dirs.append(DOWN)
+            allowed_directions.append(dirs)
+    return allowed_directions
 
-            # increment column, wrap row
-            j += 1
-            if j == n:
-                j = 0
-                i += 1
+def find_adjacency_grid(m, n):
+    return find_adjacency_from_allowed_directions(find_allowed_directions_grid(m, n))
 
-        # store structure as tuple of tuples
-        return tuple(tuple(nb) for nb in adj)
 
-    elif n%2 == 0:
-        raise ValueError('Dive adjacency is not yet implemented for odd m, even n!')
-    else:
-        raise ValueError('Dive adjacency is not yet implemented for odd m*n!')
+# ==== The Dive directed subgraph ====
 
-def find_grid_adjacency_dive_half(m, n):
-    if m%2 == 0:
-        adj = []
-        i = 0   # row
-        j = 0   # column
-        for index in range(m*n):
-            # build neighbour list of node 'index'
-            nb = []
+# Left      even rows except first column
+# Right     odd rows except last column
+# Up        last column except first row, even rows except first row / first column
+# Down      first column except last row, odd rows except last row / last column 
 
-            # Left
-            if (i == 0 and j>0) or (0 < i < m-1 and i%2==0 and 0 < j and j != n//2):
-                nb.append(index - 1)
+# for odd m, even n, these could be flipped
+# for odd m, odd n, a gadget could be attached to make this Theta-friendly
 
-            # Right
-            if (i == m-1 and j<n-1) or (0 < i < m-1 and i%2==1 and j < n-1 and j != n//2-1):
-                nb.append(index + 1)
+def find_allowed_directions_dive(m, n):
+    if m%2:
+        raise ValueError("Dive graph is defined only for even m!")
+    LEFT, RIGHT, UP, DOWN = -1, 1, -n, n
+    allowed_directions = []
+    even_row = True
+    for row in range(m):
+        for column in range(n):
+            dirs = []
+            if even_row and 0 < column:
+                dirs.append(LEFT)
+            if not even_row and column < n-1:
+                dirs.append(RIGHT)
+            if 0 < row and ( column == n-1 or (even_row and 0 < column) ):
+                dirs.append(UP)
+            if row < m-1 and ( column == 0 or (not even_row and column < n-1) ):
+                dirs.append(DOWN)
+            allowed_directions.append(dirs)
+        even_row = not even_row
+    return allowed_directions        
 
-            # Up
-            if 0 < i and (j==n-1 or (0 < i < m-1 and i%2==0 and j in (n//2-1, n//2))):
-                nb.append(index - n)
+def find_adjacency_dive(m, n):
+    return find_adjacency_from_allowed_directions(find_allowed_directions_dive(m, n))
+    
 
-            # Down
-            if i < m-1 and (j==0 or (0 < i < m-1 and i%2==1 and j in (n//2-1, n//2))):
-                nb.append(index + n)
-            
-            adj.append(nb)
+# ==== The Alternating-One-Way (AOW) directed subgraph ==== 
 
-            # increment column, wrap row
-            j += 1
-            if j == n:
-                j = 0
-                i += 1
+# Left      odd rows except first column
+# Right     even rows except last column
+# Up        odd columns except first row 
+# Down      even columns except last row
 
-        # store structure as tuple of tuples
-        return tuple(tuple(nb) for nb in adj)
+# if m xor n is odd, a gadget could be attached to ensure a Hamiltonian Cycle exists
+# for odd m, odd n, a gadget could be attached to make this Theta-friendly
 
-    elif n%2 == 0:
-        raise ValueError('Dive adjacency is not yet implemented for odd m, even n!')
-    else:
-        raise ValueError('Dive adjacency is not yet implemented for odd m*n!')
+def find_allowed_directions_AOW(m, n):
+    if m%2 or n%2:
+        raise ValueError("AOW graph is defined only for even side lengths!")
+    LEFT, RIGHT, UP, DOWN = -1, 1, -n, n
+    allowed_directions = []
+    even_row = True
+    even_col = True
+    for row in range(m):
+        for column in range(n):
+            dirs = []
+            if even_row and column > 0:
+                dirs.append(LEFT)
+            if not even_row and column < n-1:
+                dirs.append(RIGHT)
+            if not even_col and row > 0:
+                dirs.append(UP)
+            if even_col and row < m-1:
+                dirs.append(DOWN)
+            allowed_directions.append(dirs)
+            even_col = not even_col
+        even_row = not even_row
+    return allowed_directions
+
+def find_adjacency_AOW(m, n):
+    return find_adjacency_from_allowed_directions(find_allowed_directions_AOW(m, n))

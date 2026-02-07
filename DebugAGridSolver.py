@@ -1,5 +1,5 @@
 """
-Runs a large number of games, animates the games where the solve loses.
+Runs a large number of games, animates the games where the solver fails.
 This should make algorithm development much faster:)
 """
 
@@ -8,18 +8,17 @@ from Tests.Animation import GridAnimator
 from Tests.Debug import animate_failures
 
 # import method to test
-from GridSolvers.Loop import GridSolver_Loop
-from GridSolvers.LoopAndSkip import GridSolver_LoopAndGreedySkip
+from GridSolvers.DronesRules import GridSolver_DronesRules
 
 # choose grid size, m <= n
-m = 4
-n = 4
+m = 16
+n = 16
 
 # choose number of games
 N = 1000
 
 # initialise solver
-solver = GridSolver_LoopAndGreedySkip(m, n)
+solver = GridSolver_DronesRules(m, n)
 
 # run test
 animator = GridAnimator(m, n, solver)

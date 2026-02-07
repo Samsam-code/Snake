@@ -12,8 +12,13 @@ class GridSolver_AsymDive():
         self.m = m
         self.n = n
         self.area = m * n
+        self.cutoff_length = cutoff_length or (3 * self.area) // 5
         self.loop = None
-        self.cutoff_length = cutoff_length or self.area//2+2*self.m
+
+    def yield_moves_to_simulator(self, start):
+        self.start_new_game(start)
+        while True:
+            yield from self.find_path(self.apple)
 
     def start_new_game_even(self, start):
         self.snake_length = 1

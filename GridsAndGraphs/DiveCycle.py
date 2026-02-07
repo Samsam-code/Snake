@@ -1,3 +1,7 @@
+"""
+a helper to some methods on the Dive graph
+"""
+
 def dive_cycle_even(n,dive_lengths):
     # There should be m//2 -1 dives
     path = []

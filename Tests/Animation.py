@@ -8,7 +8,7 @@ Built using pygame and run_single_test
 import pygame
 from random import choice
 from random import seed as rand_set_seed
-from GridsAndGraphs.Adjacencies import find_grid_adjacency
+from GridsAndGraphs.Adjacencies import find_adjacency_grid
 
 
 BG_COLOR    = (0, 0, 0)
@@ -29,7 +29,7 @@ class GridAnimator():
         self.CELL = CELL
         self.RADIUS = RADIUS
 
-        self.adjacency = find_grid_adjacency(m, n)
+        self.adjacency = find_adjacency_grid(m, n)
 
         self.index_to_rect  = [(j*CELL, i*CELL + BANNER_HEIGHT)
                                 for i in range(m) for j in range(n)]
@@ -43,26 +43,6 @@ class GridAnimator():
         self.height = n*CELL
         self.create_board_layers(n*CELL, m*CELL + BANNER_HEIGHT)
         self.paused = False
-        self.show_path = True
-        self.show_FF_path = False
-        self.show_loop = True
-
-    def fetch_path_from_solver(self, head, apple):
-        self.draw_loop()
-        if self.show_path:
-            path = []
-            for x in self.solver.find_path(apple):
-                path.append(x)
-                if x == apple:
-                    break
-            if self.show_FF_path:
-                # not implemented yet!
-                pass
-            else:
-                self.draw_path(head, path)
-        else:
-            path = self.solver.find_path(apple)
-        return path
 
     def animate_single_game(self, seed=None):  
         if seed != None:
@@ -80,15 +60,17 @@ class GridAnimator():
         apple = start
         length = 1
         move_counter = 0
-        solver.start_new_game(start)
+        move_generator = solver.yield_moves_to_simulator(start)
         self.start_new_game(start)
         self.refresh_screen()
-        for apple_num in range(area-1):
+        for apples_eaten in range(area-1):
             while occupied[apple]:
                 apple = choice(vertices)
+            solver.apple = apple
             self.draw_apple(apple)
             self.refresh_screen()
-            for new_head in self.fetch_path_from_solver(head, apple):
+            while True:
+                new_head = next(move_generator)
                 move_counter += 1
                 if new_head not in adjacency[head]:
                     print('ERROR: non-adjacent move!')
@@ -263,16 +245,16 @@ class GridAnimator():
         self.screen.blit(self.banner_layer, (0, 0))   
 
         # draw planned loop, if exists
-        if self.show_loop and hasattr(self.solver, 'loop'):
-            # draw new loop
-            loop_points = [self.index_to_centre[c] for c in self.solver.loop]
-            pygame.draw.lines(
-                self.loop_layer,
-                BODY_COLOR + (180,),
-                True,
-                loop_points,
-                2
-            )
+        if self.show_loop:
+           if hasattr(self.solver, 'loop') and self.solver.loop is not None:
+                loop_points = [self.index_to_centre[c] for c in self.solver.loop]
+                pygame.draw.lines(
+                    self.loop_layer,
+                    BODY_COLOR + (180,),
+                    True,
+                    loop_points,
+                    2
+                )
         self.screen.blit(self.loop_layer, (0, 0))
 
     def draw_path(self, head, path):
@@ -312,12 +294,3 @@ class GridAnimator():
 
                 elif event.key == pygame.K_SPACE:
                     self.paused = not self.paused
-
-                elif event.key == pygame.K_p:
-                    self.show_path = not self.show_path
-
-                elif event.key == pygame.K_f:
-                    self.show_FF_path = not self.show_FF_path
-
-                elif event.key == pygame.K_l:
-                    self.show_loop = not self.show_loop
